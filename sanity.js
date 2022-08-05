@@ -1,8 +1,8 @@
 import {
     createClient,
-    createCurrentUserHook,
-    createImageUrlBuilder,
+    createCurrentUserHook
   } from "next-sanity";
+  import createImageUrlBuilder from '@sanity/image-url'
   export const config = {
     /**
      * Find your project ID and dataset in `sanity.json` in your studio project.
@@ -22,13 +22,18 @@ import {
     useCdn: process.env.NODE_ENV === "production",
   };
   //Setup the client for fetching data in the getProops page functions
-  export const sanityClient = createClient(config)
+
+  export const sanityClient = createClient(config);
   /**
    * Set up a helper functionfor regenerating Image URLs with only the asset
    * reference data in your  documents.
    * Read More: https://www.sanity.io/docs/image-url
+   * 
    **/
-  export const urlFor = (source) => createImageUrlBuilder(config).image(source);
+ 
+   export const urlFor = (source) => createImageUrlBuilder(sanityClient).image(source); 
+   
+//export const urlFor = (source) => imageUrlBuilder(source).image(source);
 
   // Helper function for using the currecnt logged un user account
   export const useCurrentUser = createCurrentUserHook(config);
