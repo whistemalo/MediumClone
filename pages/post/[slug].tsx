@@ -4,6 +4,7 @@ import { sanityClient, urlFor } from "../../sanity";
 import { Post } from "../../typings";
 import PortableText from "react-portable-text";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useState } from "react";
 
 interface Props {
   post: Post;
@@ -16,6 +17,8 @@ interface IFormInput {
 }
 
 function Post({ post }: Props) {
+  console.log(post)
+  const [submitted,setSubmitted] =useState(false);
   const {
     register,
     handleSubmit,
@@ -23,16 +26,17 @@ function Post({ post }: Props) {
   } = useForm<IFormInput>();
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-    
     await fetch("/api/createComment",{
       method: "POST",
       body: JSON.stringify(data),
     })
     .then(()=> {
       console.log(data);
+      setSubmitted(true);
     })
     .catch((err) =>{
       console.log(err)
+      setSubmitted(false);
     });
   };
 
@@ -43,7 +47,7 @@ function Post({ post }: Props) {
       {/* contenido del post */}
 
       <img
-        className="w-full h-45 object-cover"
+        className="w-full h-24 object-cover"
         src={urlFor(post.mainImage).url()!}
         alt="imagen"
       />
@@ -99,7 +103,12 @@ function Post({ post }: Props) {
       <hr className="max-w-lg my-5 mx-auto border border-yellow-500" />
 
       {/* comentario */}
-      <form
+     {submitted ? (
+      <div className="flex flex-col p-10 my-10 bg-yellow-500 text-white max-w-2xl mx-auto">
+        <h3 className=" text-3xl font-bold">Thank you for submitting your comment!</h3>
+        <p>Once it has been approved, it will appear below!</p>
+      </div>
+     ):( <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col p-5 max-w-2xl mx-auto mb-10"
       >
@@ -159,6 +168,18 @@ function Post({ post }: Props) {
                     text-white font-bold py-2 px-4 rounded cursor-pointer"
         />
       </form>
+      )}
+
+      {/* coments */}
+      <div className="flex flex-col p-10 my-10 max-w-2xl mx-auto shadow shadow-yellow-500 space-y-2">
+        <h3>Comments</h3>
+        <hr />
+        {post.comments.map((comment) => (
+          <div >
+            <p>{comment.name}:{comment.comment}</p>
+          </div>
+        ))}
+      </div>
     </main>
   );
 }
@@ -188,27 +209,26 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const query = `*[_type == "post" && slug.current == $slug][0]{
-        _id,
-        _createdAt,
-        title,
-        author ->{
-        name,
-        image
-      },
-      description,
-      mainImage,
-      slug,
-      body,
-      
-      'comments': *[
-       _type == "comment" &&
-        post._ref == ^._id && 
-        approved == true],
-        description,
-        mainImage,
-        slug,
-        body
-      }`;
+    _id,
+    _createdAt,
+    title,
+    author ->{
+    name,
+    image
+  },
+  'comments': *[
+    _type == "comment" &&
+    post._ref == ^._id && 
+    approved == true],
+  description,
+  mainImage,
+  slug,
+  body,
+  description,
+  mainImage,
+  slug,
+  body 
+  }`;
   const post = await sanityClient.fetch(query, {
     slug: params?.slug,
   });
