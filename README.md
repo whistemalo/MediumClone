@@ -31,5 +31,6 @@ Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&ut
 //Explicacion de Next js
 https://youtu.be/6fNy0iD3hsk?t=3208
 
-//para hacer los elementos opacionales en typscript
+//para hacer los elementos opacionales en 
+//typscript
 https://youtu.be/6fNy0iD3hsk?t=7040
